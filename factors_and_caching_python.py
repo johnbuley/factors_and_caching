@@ -23,8 +23,8 @@ def _factor_list_polynomial(input):
     # Since this is a code challenge, I used the one-line solution, although
     # readability is sacrificed if the code is to conform to the PEP8 line limit.
     return dict(zip(input, [[el_j for el_j in input
-                                    if el_i != el_j and el_i % el_j == 0]
-                                    for el_i in input]))
+                                     if el_i != el_j and el_i % el_j == 0]
+                                     for el_i in input]))
 
 # O(n*sqrt(max(N)))
 def _factor_list_pseudo_polynomial(input):

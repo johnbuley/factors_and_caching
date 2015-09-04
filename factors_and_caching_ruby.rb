@@ -31,16 +31,18 @@ module FactorsAndCaching
 
       # Since this is a code challenge, I wanted to try for a one-line solution,
       # even though Ruby doesn't support list comprehensions.  The result was
-      # not very readable, but I included it here anyway:
+      # not very readable, but I included it here anyway.  I followed the format
+      # I use for streams and lambdas in Java, but I suppose there's no pretty
+      # to do it:
       #
       #return Hash.new{|h,k|
-      #								 h[k]=[]}
-      #					  .tap{|h|
-      #								 input.zip(input.map{|element_i|
-      #																		 input.select{|element_j|
-      # 																								element_i != element_j && element_i % element_j == 0}})
-      #											.each{|k,v|
-      # 													h[k] = v }}
+      #                h[k]=[]}
+      #           .tap{|h|
+      #                input.zip(input.map{|element_i|
+      #                                    input.select{|element_j|
+      #                                                 element_i != element_j && element_i % element_j == 0}})
+      #                     .each{|k,v|
+      #                           h[k] = v }}
 
 
       # A much more readable approach:
