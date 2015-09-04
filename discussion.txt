@@ -1,0 +1,93 @@
+A simplifying assumption I made was that the input is distinct.  I based 
+this on the fact that the sample output is a hash table.  If the input
+is a list of non-distinct integers, then the user could pass in a set
+created from the list.
+
+--------------
+There are two solutions which can be optimal given a particular input:
+
+There is a polynomial solution of complexity O(n^2), wherein each distinct
+pair is checked to see if input[i] % input[j] == 0.  If true, then
+input[j] is added to input[i]'s list of factors.
+
+There is also a pseudo-polynomial solution of complexity O(n*sqrt(max(N))).
+In this case, for a given input element i, all integers j where 1 <= j <= i
+are checked to see if i % j == 0.  If i % j == 0, then i % i/j == 0.  If
+j, i/j, or both are members of the input set, then they are added to i's
+list of factors.
+
+
+For an input set of small size but composed of large integers, the
+polynomial solution is optimal.  For an input set of larger size but composed
+of smaller integers, the pseudo-polynomial solution is optimal.  So when
+the public method factor_list_of_integers(input) is called, it calculates
+sum({sqrt(i) : i in input}) to determine which algorithm is optimal.  The
+complexity of this initial check is of a lower order of magnitude than
+either algorithm, so the additional cost is minimal.
+
+
+--------------
+Additional questions:
+
+1) The caching system would have two components: an index file, and a set
+of data files.  The index file could be a pickled hash table, or a text
+representation of the same.  The key would be an input set, and the
+value would be a composed of a) the memory location of the record 
+(filename,position), and b) the byte-size of the record.
+
+
+Key:
+
+Hashing an array is generally not supported directly, because in most
+cases an array is mutable.  Additionally, some collections do not
+guarantee that order is preserved, and moreover, the input itself can
+appear with different orderings.
+
+The most secure way to hash the input is to first sort the elements,
+and then create a delimited string from them.
+
+Ex: [10,5,2,20] => "2|5|10|20"
+
+Sorting the input is of lower complexity than either of the list-factoring
+algorithms, so the overall task still scales.
+
+
+Value:
+
+Record retrieval from the location specified in the Value relies on
+a module like mmap in Python, or RandomAccessFile in Java.  The value
+indicates a file and the position of the record in that file.  If
+the hashed input is present in the set of keys, then the library
+will open the file for random access, read <byte-size of the record>
+bytes starting at position <location of record>.  This will represent
+either a binary or text representation of the solution for that input.
+
+
+
+2) The largest cost of this implementation is I/O and the creation
+of a hashable representation of the input set.
+
+One way to optimize I/O would be to look at how file size affects
+the seek() performance.  A set of smaller files may have better
+access performance than one large one.  Additionally, at least
+in the case of mmap in Python, there is a cap on allowable file
+size because the module needs to map the entire address space
+of the file.
+
+In the implementation I suggest creating a string representation
+of the sorted input.  Particularly for large inputs, there is an
+overhead associated with this.  What I've been looking into is
+whether a set of integers can be hashed to a unique value.  The
+key is that there can be no collisions; otherwise, we still need
+to store the entire input.  It seems that what makes the
+no-collision constraint difficult to respect is that the size
+of the input is unbounded.  So, given that there an infinite
+number of possible inputs, you would need an infinite number
+of possible hash values.  I can't say for sure that this would
+be impossible, but I haven't found the answer yet.
+
+
+
+3)  This wouldn't change the caching algorithm.  This implementation
+works for any function whose output is serializable.
+
