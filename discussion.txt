@@ -16,7 +16,7 @@ are checked to see if i % j == 0.  If i % j == 0, then i % i/j == 0.  If
 j, i/j, or both are members of the input set, then they are added to i's
 list of factors.
 
-
+--------------
 For an input set of small size but composed of large integers, the
 polynomial solution is optimal.  For an input set of larger size but composed
 of smaller integers, the pseudo-polynomial solution is optimal.  So when
@@ -26,7 +26,7 @@ complexity of this initial check is of a lower order of magnitude than
 either algorithm, so the additional cost is minimal.
 
 
---------------
+
 Additional questions:
 
 1) The caching system would have two components: an index file, and a set
@@ -38,12 +38,13 @@ value would be a composed of a) the memory location of the record
 
 Key:
 
-Hashing an array is generally not supported directly, because in most
-cases an array is mutable.  Additionally, some collections do not
-guarantee that order is preserved, and moreover, the input itself can
-appear with different orderings.
+Hashing the contents of an array is not directly supported, and in
+general this is a hard problem if you want to generate a unique
+hash and discard the original input.  This is because the size
+a collection is unbounded, and so requires an infinite set
+of hash values.  I discuss this more in 2).
 
-The most secure way to hash the input is to first sort the elements,
+A simple way to hash the input is to first sort the elements,
 and then create a delimited string from them.
 
 Ex: [10,5,2,20] => "2|5|10|20"
@@ -67,6 +68,7 @@ either a binary or text representation of the solution for that input.
 2) The largest cost of this implementation is I/O and the creation
 of a hashable representation of the input set.
 
+--------------
 One way to optimize I/O would be to look at how file size affects
 the seek() performance.  A set of smaller files may have better
 access performance than one large one.  Additionally, at least
@@ -74,6 +76,7 @@ in the case of mmap in Python, there is a cap on allowable file
 size because the module needs to map the entire address space
 of the file.
 
+--------------
 In the implementation I suggest creating a string representation
 of the sorted input.  Particularly for large inputs, there is an
 overhead associated with this.  What I've been looking into is
@@ -85,6 +88,34 @@ of the input is unbounded.  So, given that there an infinite
 number of possible inputs, you would need an infinite number
 of possible hash values.  I can't say for sure that this would
 be impossible, but I haven't found the answer yet.
+
+--------------
+Some compression of the data (at least in the stored solution of
+an input) can be attained as follows:
+
+Rather than store a string, store a byte representation of the
+integer array.
+
+Ex:
+
+Input: [255,255^2,127]
+
+Byte Representation:
+
+Address     |  0  |  1  |   2   |  3  |   4   |   5   |  6  |   7   |
+---------------------------------------------------------------------
+Byte Value  |  6  |  1  |  255  |  2  |  255  |  255  |  1  |  127  |
+	       ^                   ^                            ^
+	   byte-size of record     byte-size of element       element
+
+There is a byte that indicates the number of bytes of the following
+integer, then another byte indicator for the next integer, and so
+on.
+
+In this way, a set of 3 integers can be represented with only
+7 bytes.  In addition to the improvement over storage of a 
+char array in a file, this avoids the string creation/splitting 
+overhead when a solution is read/written.
 
 
 
