@@ -1,6 +1,6 @@
 $LOAD_PATH << '.'
 
-require "./FactorsAndCaching"
+require "./factors_and_caching_ruby"
 
 puts
 input = [10,5,2,20]
