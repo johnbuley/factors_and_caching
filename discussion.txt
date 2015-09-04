@@ -44,13 +44,16 @@ hash and discard the original input.  This is because the size
 a collection is unbounded, and so requires an infinite set
 of hash values.  I discuss this more in 2).
 
-A simple way to hash the input is to first sort the elements,
-and then create a delimited string from them.
+A simple way to derive a hashable form of the input is to first 
+sort the elements, and then create a delimited string from them.
 
 Ex: [10,5,2,20] => "2|5|10|20"
 
 Sorting the input is of lower complexity than either of the list-factoring
-algorithms, so the overall task still scales.
+algorithms, so the overall task should still scale.  However, since
+the inputs are of undetermined size, in practice you faces issues
+of heap allocation cost.  So while theoretically it scales, there
+are limitations.  I discuss this more in 2).
 
 
 Value:
@@ -86,8 +89,8 @@ to store the entire input.  It seems that what makes the
 no-collision constraint difficult to respect is that the size
 of the input is unbounded.  So, given that there an infinite
 number of possible inputs, you would need an infinite number
-of possible hash values.  I can't say for sure that this would
-be impossible, but I haven't found the answer yet.
+of possible hash values.  I can't say for sure that there's no way
+around this, but I haven't found an answer yet.
 
 --------------
 Some compression of the data (at least in the stored solution of
